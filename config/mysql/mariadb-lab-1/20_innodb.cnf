@@ -1,0 +1,25 @@
+[mysqld]
+
+innodb_buffer_pool_size        = 1G
+innodb_log_file_size           = 1024M
+innodb_autoinc_lock_mode       = 2
+innodb_locks_unsafe_for_binlog = 0
+innodb_data_file_path          = ibdata1:10M:autoextend
+innodb_log_buffer_size         = 48M
+innodb_doublewrite             = 1
+innodb_flush_log_at_trx_commit = 1
+innodb_lock_wait_timeout       = 50
+innodb_file_per_table          = 1
+innodb_open_files              = 4096
+innodb_flush_neighbors         = 0
+innodb_strict_mode             = 1
+innodb_flush_method            = O_DIRECT
+innodb_write_io_threads        = 32
+innodb_read_io_threads         = 32
+innodb_lru_scan_depth          = 1500
+innodb_io_capacity             = 800
+innodb_io_capacity_max         = 1000
+innodb_stats_on_metadata       = 0
+# innodb_page_size               = 4096
+
+transaction_isolation          = READ-COMMITTED

@@ -1,0 +1,95 @@
+services:
+  mariadb-lab-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mariadb-lab-1
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'labwork'
+      MYSQL_USER: 'admin_gc_remote'
+      MYSQL_PASSWORD: 'DBA@ccess#3306'
+      MYSQL_ROOT_PASSWORD: 'r00tP@ss'
+    ports:
+      - "33061:3306"
+      - '1122:22'
+    expose:
+      - '3306'
+      - '22'
+    volumes:
+      - /mariadb-lab-1:/data/mysql/data
+      - ./config/mysql/mariadb-lab-1:/data/mysql/config
+    networks:
+      mysql_net:
+        ipv4_address: 172.18.0.201
+  mariadb-lab-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mariadb-lab-2
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'company_accounts'
+      MYSQL_USER: 'admin_gc_remote'
+      MYSQL_PASSWORD: 'DBA@access#3306'
+      MYSQL_ROOT_PASSWORD: 'r00tP@ss'
+    ports:
+      - "33062:3306"
+      - '1222:22'
+    expose:
+      - '3306'
+      - '22'
+    volumes:
+      - /mariadb-lab-2:/data/mysql/data
+      - ./config/mysql/mariadb-lab-2:/data/mysql/config
+    networks:
+      mysql_net:
+        ipv4_address: 172.18.0.202
+  mariadb-lab-3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mariadb-lab-3
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'worklab'
+      MYSQL_USER: 'admin_gc_remote'
+      MYSQL_PASSWORD: 'DBA@acess#3306'
+      MYSQL_ROOT_PASSWORD: 'r00tP@ss'
+    ports:
+      - "33063:3306"
+      - '1322:22'
+    expose:
+      - '3306'
+      - '22'
+    volumes:
+      - /mariadb-lab-3:/data/mysql/data
+      - ./config/mysql/mariadb-lab-3:/data/mysql/config
+    networks:
+      mysql_net:
+        ipv4_address: 172.18.0.203
+  mariadbtools:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mariadbtools
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'r00tP@ss'
+    ports:
+      - "33064:3306"
+      - '1422:22'
+    expose:
+      - '3306'
+      - '22'
+    networks:
+      mysql_net:
+        ipv4_address: 172.18.0.204
+
+networks:
+  mariadb_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.18.0.0/16
+         gateway: 172.18.0.1

@@ -1,0 +1,22 @@
+[mysqld]
+
+skip-external-locking
+skip-name-resolve
+skip-slave-start
+gtid-domain-id                 = 1103
+server_id                      = 1103
+read_only                      = 1
+user                           = mysql
+
+
+log-slave-updates
+binlog-format               = ROW
+sync_binlog                 = 1
+expire_logs_days            = 3
+log-bin                     = /data/mysql/binlog/mysql-bin
+relay-log                   = /data/mysql/relaylog/mysql-relay
+log-bin-index               = /data/mysql/binlog/mysql-bin.index
+max_binlog_size             = 128M
+slave_compressed_protocol   = 1
+slave_parallel_threads      = 8
+slave_parallel_mode         = conservative
