@@ -1,78 +1,82 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Taipei
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# setup maria datadir
-RUN mkdir -p /data/mysql
-RUN mkdir /data/mysql/logs
+ARG CONSUL_VERSION=1.22.7
 
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    lsb-release \
-    gnupg2 \
-    wget \
-    curl \
-    vim \
-    less \
-    unzip \
-    bash \
-    inetutils-ping \
-    inetutils-tools \
-    net-tools \
-    lsb-release \
-    percona-toolkit \
-    dnsutils \
-    software-properties-common \
-    ntp \
-    gnupg2 \
-    tmux \
-    netcat \
-    rsyslog \
-    telnet \
-    pv \
-    ncdu \
-    jq \
-    iptables \
-    sysstat \
-    openssh-server \
-    openssh-client \
-    ca-certificates \
-    && apt-get clean
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo "${TZ}" > /etc/timezone
 
-# Add the MariaDB 10.11 repository
-RUN curl -fsSL https://mariadb.org/mariadb-release.key | tee /etc/apt/trusted.gpg.d/mariadb.asc
-RUN DISTRO=$(lsb_release -c | awk '{print $2}') && echo "deb [arch=amd64,arm64,ppc64el] https://mirrors.fossho.st/mariadb/repo/10.11/ubuntu $DISTRO main" > /etc/apt/sources.list.d/mariadb.list
+# Install system packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        dnsutils \
+        gnupg2 \
+        inetutils-ping \
+        inetutils-tools \
+        iptables \
+        jq \
+        lsb-release \
+        ncdu \
+        net-tools \
+        netcat-openbsd \
+        ntp \
+        openssh-client \
+        openssh-server \
+        percona-toolkit \
+        pv \
+        rsyslog \
+        software-properties-common \
+        sysstat \
+        telnet \
+        unzip \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Update the package list and install MariaDB server
-RUN apt-get update && apt-get install -y mariadb-server
 
-# Expose the default MariaDB port
+# MariaDB installation from official repository
+RUN curl -LsS \
+        https://r.mariadb.com/downloads/mariadb_repo_setup \
+        -o /tmp/mariadb_repo_setup \
+    && chmod +x /tmp/mariadb_repo_setup \
+    && /tmp/mariadb_repo_setup \
+        --mariadb-server-version="mariadb-10.11" \
+        --skip-maxscale \
+        --skip-tools \
+    && rm -f /tmp/mariadb_repo_setup
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        mariadb-server \
+        mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# MariaDB filesystem Setup, as I don't want to use default mariadb filesystem for maintainability
+RUN mkdir -p \
+        /data/mysql/data \
+        /data/mysql/logs \
+        /data/mysql/binlog \
+        /data/mysql/relaylog \
+        /data/mysql/config \
+        /run/mysqld \
+        /run/sshd 
+
+RUN rm -rf /var/lib/mysql /data/mysql/data \
+    && chown -R mysql:mysql /data/mysql /run/mysqld \
+    && ln -s /data/mysql/data /var/lib/mysql
+
+
+# Entrypoint
+COPY ./scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+
+# Exposed ports
 EXPOSE 3306
+EXPOSE 22  
 
-# Expose consul ports
-EXPOSE 8500 8600 8300 8301 8302 8400 8501 8601
-
-# move datadir
-RUN mv /var/lib/mysql /data/mysql/data
-RUN chmod 775 /data/mysql/data
-RUN chown mysql:mysql -R /data/mysql/data
-RUN ln -s /data/mysql/data /var/lib/mysql
-
-# setup binlig dir
-RUN mkdir /data/mysql/binlog
-RUN chown mysql:mysql -R /data/mysql/binlog
-
-# setup relay dir
-RUN mkdir /data/mysql/relaylog
-RUN chown mysql:mysql -R /data/mysql/relaylog
-
-# setup config files
-RUN rm -rf /etc/mysql/mariadb.conf.d
-COPY ./config/mariadb.conf.d /data/mysql/config
-RUN ln -s /data/mysql/config /etc/mysql/mariadb.conf.d
-RUN chown mysql:mysql -R /data/mysql/config
-
-# Start MariaDB service and set the default command
-#CMD ["mysqld"]
+# Startup
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

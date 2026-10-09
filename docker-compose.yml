@@ -4,92 +4,89 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mariadb-lab-1
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'labwork'
-      MYSQL_USER: 'admin_gc_remote'
-      MYSQL_PASSWORD: 'DBA@ccess#3306'
-      MYSQL_ROOT_PASSWORD: 'r00tP@ss'
+    hostname: mariadb-lab-1
+    volumes:
+      - mariadb_lab_1_data:/data/mysql/data
+      - mariadb_lab_1_logs:/data/mysql/logs
+      - mariadb_lab_1_binlog:/data/mysql/binlog
+      - mariadb_lab_1_relaylog:/data/mysql/relaylog
+      - ./config/mariadb-lab-1/my.cnf:/data/mysql/config/my.cnf:ro
     ports:
       - "33061:3306"
-      - '1122:22'
-    expose:
-      - '3306'
-      - '22'
-    volumes:
-      - /mariadb-lab-1:/data/mysql/data
-      - ./config/mysql/mariadb-lab-1:/data/mysql/config
     networks:
       mysql_net:
         ipv4_address: 172.18.0.201
+    restart: unless-stopped
+
   mariadb-lab-2:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: mariadb-lab-2
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'company_accounts'
-      MYSQL_USER: 'admin_gc_remote'
-      MYSQL_PASSWORD: 'DBA@access#3306'
-      MYSQL_ROOT_PASSWORD: 'r00tP@ss'
+    hostname: mariadb-lab-2
+    volumes:
+      - mariadb_lab_2_data:/data/mysql/data
+      - mariadb_lab_2_logs:/data/mysql/logs
+      - mariadb_lab_2_binlog:/data/mysql/binlog
+      - mariadb_lab_2_relaylog:/data/mysql/relaylog
+      - ./config/mariadb-lab-2/my.cnf:/data/mysql/config/my.cnf:ro
     ports:
       - "33062:3306"
-      - '1222:22'
-    expose:
-      - '3306'
-      - '22'
-    volumes:
-      - /mariadb-lab-2:/data/mysql/data
-      - ./config/mysql/mariadb-lab-2:/data/mysql/config
     networks:
       mysql_net:
         ipv4_address: 172.18.0.202
+    restart: unless-stopped
+
   mariadb-lab-3:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: mariadb-lab-3
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'worklab'
-      MYSQL_USER: 'admin_gc_remote'
-      MYSQL_PASSWORD: 'DBA@acess#3306'
-      MYSQL_ROOT_PASSWORD: 'r00tP@ss'
+    hostname: mariadb-lab-3
+    volumes:
+      - mariadb_lab_3_data:/data/mysql/data
+      - mariadb_lab_3_logs:/data/mysql/logs
+      - mariadb_lab_3_binlog:/data/mysql/binlog
+      - mariadb_lab_3_relaylog:/data/mysql/relaylog
+      - ./config/mariadb-lab-3/my.cnf:/data/mysql/config/my.cnf:ro
     ports:
       - "33063:3306"
-      - '1322:22'
-    expose:
-      - '3306'
-      - '22'
-    volumes:
-      - /mariadb-lab-3:/data/mysql/data
-      - ./config/mysql/mariadb-lab-3:/data/mysql/config
     networks:
       mysql_net:
         ipv4_address: 172.18.0.203
-  mariadbtools:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: mariadbtools
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 'r00tP@ss'
-    ports:
-      - "33064:3306"
-      - '1422:22'
-    expose:
-      - '3306'
-      - '22'
-    networks:
-      mysql_net:
-        ipv4_address: 172.18.0.204
+    restart: unless-stopped
+
+volumes:
+  mariadb_lab_1_data:
+    name: mariadb_lab_1_data
+  mariadb_lab_1_logs:
+    name: mariadb_lab_1_logs
+  mariadb_lab_1_binlog:
+    name: mariadb_lab_1_binlog
+  mariadb_lab_1_relaylog:
+    name: mariadb_lab_1_relaylog
+  mariadb_lab_2_data:
+    name: mariadb_lab_2_data
+  mariadb_lab_2_logs:
+    name: mariadb_lab_2_logs
+  mariadb_lab_2_binlog:
+    name: mariadb_lab_2_binlog
+  mariadb_lab_2_relaylog:
+    name: mariadb_lab_2_relaylog
+  mariadb_lab_3_data:
+    name: mariadb_lab_3_data
+  mariadb_lab_3_logs:
+    name: mariadb_lab_3_logs
+  mariadb_lab_3_binlog:
+    name: mariadb_lab_3_binlog
+  mariadb_lab_3_relaylog:
+    name: mariadb_lab_3_relaylog
 
 networks:
-  mariadb_net:
+  mysql_net:
+    name: mysql_net
     driver: bridge
     ipam:
-     config:
-       - subnet: 172.18.0.0/16
-         gateway: 172.18.0.1
+      config:
+        - subnet: 172.18.0.0/24
+          gateway: 172.18.0.1
