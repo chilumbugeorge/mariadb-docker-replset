@@ -40,3 +40,25 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY 'StrongPasswordHere';
 mysql -u root -p
 
 
+
+## Setup Relication
+
+### On the primary node, enable writes and create a replication user:
+
+```bash
+SET GLOBAL read_only = 0;
+CREATE USER 'repl'@'%' IDENTIFIED BY 'ReplicationPassword';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+
+
+### On each of the remaining two replica nodes, setup replication 
+
+````bash
+CHANGE MASTER TO
+    MASTER_HOST = 'mariadb-lab-1',
+    MASTER_PORT = 3306,
+    MASTER_USER = 'repl',
+    MASTER_PASSWORD = 'YourReplicationPassword',
+    MASTER_USE_GTID = slave_pos;
+
+START SLAVE; SHOW SLAVE STATUS\G
