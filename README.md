@@ -6,9 +6,6 @@ A three-node MariaDB replication lab.
 
 ### Build and start a new lab
 
-
-### Start stopped containers
-
 ```bash
 docker compose up -d --build   <<< Also use this after changing the Dockerfile or files copied into the image
 docker compose start           <<< Start stopped containers
@@ -16,8 +13,6 @@ docker compose up -d           <<< Recreate removed containers and start them
 docker compose restart         <<< Restart after changing bind-mounted configuration files
 ```
 
-
-## Individual Components
 
 ### Start individual containers
 
