@@ -1,36 +1,21 @@
-# MariaDB + Consul Replication Lab
+# MariaDB Replication lab
 
-A three-node MariaDB replication lab with Consul.
+A three-node MariaDB replication lab.
 
 ## Build and Manage Containers
 
 ### Build and start a new lab
 
-Also use this after changing the Dockerfile or files copied into the image:
-
-```bash
-docker compose up -d --build
-```
 
 ### Start stopped containers
 
 ```bash
-docker compose start
+docker compose up -d --build   <<< Also use this after changing the Dockerfile or files copied into the image
+docker compose start           <<< Start stopped containers
+docker compose up -d           <<< Recreate removed containers and start them
+docker compose restart         <<< Restart after changing bind-mounted configuration files
 ```
 
-### Recreate removed containers and start them
-
-```bash
-docker compose up -d
-```
-
-Also use this after changing Compose settings, such as ports or environment variables.
-
-### Restart after changing bind-mounted configuration files
-
-```bash
-docker compose restart
-```
 
 ## Individual Components
 
@@ -68,19 +53,13 @@ At the MariaDB prompt:
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'StrongPasswordHere';
 ```
 
-Exit the SQL client:
-
-```sql
-EXIT;
-```
-
-Then test password login from the container shell:
+Exit the SQL client then login with with new password:
 
 ```bash
+exit;
 mariadb -u root -p
 ```
 
-Repeat on each node as needed. Replace the example password before use.
 
 ## Set Up Replication
 
@@ -89,7 +68,7 @@ This setup uses:
 - **Primary:** `mariadb-lab-1`
 - **Replicas:** `mariadb-lab-2` and `mariadb-lab-3`
 
-Each node must have a unique `server_id` and binary logging enabled.
+Each node is already configured with a unique `server_id` and binary logging enabled.
 
 If the primary already contains application data, seed the replicas from a consistent backup and configure the corresponding GTID position before starting replication.
 
