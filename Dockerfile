@@ -37,7 +37,7 @@ RUN apt-get update \
 
 
 # MariaDB installation from official repository
-RUN curl -LsS \
+RUN curl -fLsS \
         https://r.mariadb.com/downloads/mariadb_repo_setup \
         -o /tmp/mariadb_repo_setup \
     && chmod +x /tmp/mariadb_repo_setup \
@@ -64,7 +64,7 @@ RUN mkdir -p \
         /run/mysqld \
         /run/sshd 
 
-RUN rm -rf /var/lib/mysql /data/mysql/data \
+RUN rm -rf /var/lib/mysql \
     && chown -R mysql:mysql /data/mysql /run/mysqld \
     && ln -s /data/mysql/data /var/lib/mysql
 
