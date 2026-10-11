@@ -105,12 +105,6 @@ CREATE USER 'repl'@'%' IDENTIFIED BY 'ReplicationPassword';
 GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
 ```
 
-Persist the primary's writable setting in its `my.cnf`:
-
-```ini
-[mysqld]
-read_only = OFF
-```
 
 Keep `read_only = ON` on the replicas.
 
